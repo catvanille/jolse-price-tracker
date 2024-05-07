@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from backend.get import *
 from selenium import webdriver
 import smtplib
 URL = 'https://jolse.com/product/beauty-of-joseon-relief-sun-rice-probiotics-50ml/46958/category/1/display/22/'
