@@ -27,12 +27,21 @@ def send_mail():
     server.starttls()
     server.ehlo()
 
-    
-
-
 products = []
 oldprices = []
 newprices = []
+
+check_price()
+# add data to products.csv
+df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices})
+df.to_csv('products.csv', index=False, encoding='utf-8')
+
+
+
+
+"""
+using chromedriver
+"""
 # driver = webdriver.Chrome()
 # driver.get('https://jolse.com/category/best/25/')
 
@@ -47,8 +56,3 @@ newprices = []
 #     products.append(product)
 #     oldprices.append(float(old_price))
 #     newprices.append(float(new_price))
-
-check_price()
-# add data to products.csv
-df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices})
-df.to_csv('products2.csv', index=False, encoding='utf-8')
