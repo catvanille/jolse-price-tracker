@@ -41,7 +41,7 @@ content = driver.page_source
 soup = BeautifulSoup(content, features="html.parser")
 
 for element in soup.findAll('div', attrs={'class': 'description'}):
-    product = element.find('strong', attrs={'class': 'name'}).text.strip()
+    product = element.find('strong', attrs={'class': 'name'}).text.strip()[15:]
     #price = element.find('ul', class_='xans-element-').find('li', class_='xans-record-').find('span').text.strip()
     price = element.find('ul', attrs={'class': 'xans-element- xans-product xans-product-listitem spec'}).text.strip()[10:]
     old_price, new_price = price.split('USD ')
