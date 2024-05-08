@@ -27,16 +27,26 @@ def send_mail():
     server.starttls()
     server.ehlo()
 
+def check_duplicates(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not(x in seen or seen_add(x))]
+
 products = []
 oldprices = []
 newprices = []
 
+# yoink price
 check_price()
+
+# remove duplicates
+n_products = check_duplicates(products)
+n_oldprices = check_duplicates(oldprices)
+n_newprices = check_duplicates(newprices)
+
 # add data to products.csv
 df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices})
 df.to_csv('products.csv', index=False, encoding='utf-8')
-
-
 
 
 """
