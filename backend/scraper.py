@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import smtplib
 import pandas as pd
-URL = 'https://jolse.com/category/best/25/'
+URL = 'https://jolse.com/category/skincare/1018/'
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"}
 
@@ -20,6 +20,13 @@ def check_price():
         products.append(product)
         oldprices.append(float(old_price))
         newprices.append(float(new_price))
+        link = element.find('a')['href']
+        links.append(link)
+        if element.find('div', attrs={'class': 'icon'}) == True:
+            stock.append(0)
+        else:
+            stock.append(1)
+
         
 def send_mail():
     server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -35,8 +42,8 @@ def check_duplicates(seq):
 products = []
 oldprices = []
 newprices = []
-
-# yoink price
+links = []
+stock = []
 check_price()
 
 # remove duplicates
@@ -45,7 +52,7 @@ n_oldprices = check_duplicates(oldprices)
 n_newprices = check_duplicates(newprices)
 
 # add data to products.csv
-df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices})
+df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices, 'Link': links, 'Stock': stock})
 df.to_csv('products.csv', index=False, encoding='utf-8')
 
 
