@@ -47,7 +47,7 @@ for element in soup.findAll('div', attrs={'class': 'description'}):
     old_price, new_price = price.split('USD ')
     products.append(product)
     oldprices.append(float(old_price))
-    newprices.append(new_price)
+    newprices.append(float(new_price))
 
 # add data to products.csv
 df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices})
