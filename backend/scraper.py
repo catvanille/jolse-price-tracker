@@ -32,7 +32,8 @@ headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 
 products = []
-prices = []
+oldprices = []
+newprices = []
 driver = webdriver.Chrome()
 driver.get('https://jolse.com/category/best/25/')
 
@@ -41,11 +42,13 @@ soup = BeautifulSoup(content, features="html.parser")
 
 for element in soup.findAll('div', attrs={'class': 'description'}):
     product = element.find('strong', attrs={'class': 'name'}).text.strip()
-    price = element.find('ul', class_='xans-element-').find('li', class_='xans-record-').find('span').text.strip()
-
+    #price = element.find('ul', class_='xans-element-').find('li', class_='xans-record-').find('span').text.strip()
+    price = element.find('ul', attrs={'class': 'xans-element- xans-product xans-product-listitem spec'}).text.strip()[10:]
+    old_price, new_price = price.split('USD ')
     products.append(product)
-    prices.append(price)
+    oldprices.append(float(old_price))
+    newprices.append(new_price)
 
 # add data to products.csv
-df = pd.DataFrame({'Product': products, 'Price': prices})
+df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices})
 df.to_csv('products.csv', index=False, encoding='utf-8')
