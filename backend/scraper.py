@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
+# from selenium import webdriver
 import smtplib
 import pandas as pd
 
@@ -27,7 +27,7 @@ def check_price():
         products.append(product)
         oldprices.append(float(old_price))
         newprices.append(float(new_price))
-        percentoff.append(round((float(old_price) - float(new_price)) / float(old_price) * 100),2)
+        # percentoff.append(round((float(old_price) - float(new_price)) / float(old_price) * 100),2)
         if 'src="/web/upload/icon_201906191605023500.jpg' in element.find('div', attrs={'class': 'icon'}).text.strip() == True:
             stock.append(0)
         else:
@@ -60,8 +60,8 @@ for i in range(1, 86):
 # n_newprices = check_duplicates(newprices)
 
 # add data to products.csv
-df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices, 'Discount': percentoff, 'Link': links, 'Stock': stock})
-df.to_csv('products.csv', index=False, encoding='utf-8')
+# df = pd.DataFrame({'Product': products, 'Old Price': oldprices, 'New Price': newprices, 'Discount': percentoff, 'Link': links, 'Stock': stock})
+# df.to_csv('products.csv', index=False, encoding='utf-8')
 
 
 """
