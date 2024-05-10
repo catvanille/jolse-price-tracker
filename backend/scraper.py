@@ -27,7 +27,7 @@ def check_price():
         products.append(product)
         oldprices.append(float(old_price))
         newprices.append(float(new_price))
-        # percentoff.append(round((float(old_price) - float(new_price)) / float(old_price) * 100),2)
+        percentoff.append(int(float(old_price) - float(new_price)) / float(old_price) * 100)
         if 'src="/web/upload/icon_201906191605023500.jpg' in element.find('div', attrs={'class': 'icon'}).text.strip() == True:
             stock.append(0)
         else:
