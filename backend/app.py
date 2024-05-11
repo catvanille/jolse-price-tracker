@@ -31,7 +31,8 @@ def check_price(URL):
       if 'display/2' in link:
          continue
       else:
-         link = f'https://jolse.com/{link}'
+         # make sure to add prepend for link
+         link = f'https://jolse.com{link}'
          links.append(link)
       product = element.find('strong', attrs={'class': 'name'}).text.strip()[15:]
       price = element.find('ul', attrs={'class': 'xans-element- xans-product xans-product-listitem spec'}).text.strip()[10:]
