@@ -12,6 +12,7 @@ headers = {
    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 }
 
+# NOTE:currency converter end api(probably will move it from here)
 CURRENCY_URL = "https://api.fxratesapi.com/latest?api_key=fxr_live_1326320655e918db649b4587f44de77b339c"
 
 # Initialize lists
