@@ -18,7 +18,9 @@ newprices = []
 percentoff = []
 stock = []
 
-# scraper
+'''
+scrapper
+'''
 def check_price(URL):
 
    page = requests.get(URL, headers=headers)
@@ -56,7 +58,9 @@ def check_price(URL):
       "stock": stock
    } 
 
-# grab skincare category
+'''
+grab skincare category
+'''
 def yoink_skincare():
    skincare_data = {
       "products": [],
