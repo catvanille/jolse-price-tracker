@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -9,6 +11,8 @@ CORS(app)
 headers = {
    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 }
+
+CURRENCY_URL = "https://api.fxratesapi.com/latest?api_key=fxr_live_1326320655e918db649b4587f44de77b339c"
 
 # Initialize lists
 links = []
@@ -63,6 +67,7 @@ def check_price(URL):
 grab skincare category
 '''
 def yoink_skincare():
+   global links, products, oldprices, newprices, percentoff, stock
    skincare_data = {
       "products": [],
       "oldprices": [],
@@ -72,6 +77,7 @@ def yoink_skincare():
    }
 
    # range = total pages(currently 85)
+   # NOTE: seems to bug out when increasing range
    for i in range(1, 2):
       URL = 'https://jolse.com/category/skincare/1018/' + '?page=' + str(i)
       data = check_price(URL)
@@ -81,13 +87,29 @@ def yoink_skincare():
       skincare_data["links"].extend(data["links"])
       skincare_data["stock"].extend(data["stock"])
 
-   return skincare_data
+   # update global variables
+   links = skincare_data["links"]
+   products = skincare_data["products"]
+   oldprices = skincare_data["oldprices"]
+   newprices = skincare_data["newprices"]
+   stock = skincare_data["stock"]
 
 # Route to return scraped data as JSON
 @app.route('/data')
 def get_data():
-   data = yoink_skincare()
+   data = {
+      "products": products,
+      "oldprices": oldprices,
+      "newprices": newprices,
+      "links": links,
+      "stock": stock
+   }
    return jsonify(data)
 
 if __name__ == '__main__':
+   # schedule yoinking once every day
+   scheduler = BackgroundScheduler()
+   scheduler.add_job(yoink_skincare, 'interval', days=1, start_date=datetime.now())
+   scheduler.start()
+
    app.run(debug=True)
