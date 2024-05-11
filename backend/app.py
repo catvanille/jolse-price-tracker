@@ -10,16 +10,17 @@ headers = {
    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 }
 
-def check_price():
-   # Initialize lists
-   links = []
-   products = []
-   oldprices = []
-   newprices = []
-   percentoff = []
-   stock = []
+# Initialize lists
+links = []
+products = []
+oldprices = []
+newprices = []
+percentoff = []
+stock = []
 
-   URL = 'https://jolse.com/category/skincare/1018/'  # Replace this with your actual URL
+# scraper
+def check_price(URL):
+
    page = requests.get(URL, headers=headers)
    soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -28,6 +29,7 @@ def check_price():
       if 'display/2' in link:
          continue
       else:
+         link = f'https://jolse.com/{link}'
          links.append(link)
       product = element.find('strong', attrs={'class': 'name'}).text.strip()[15:]
       price = element.find('ul', attrs={'class': 'xans-element- xans-product xans-product-listitem spec'}).text.strip()[10:]
@@ -54,10 +56,32 @@ def check_price():
       "stock": stock
    } 
 
+# grab skincare category
+def yoink_skincare():
+   skincare_data = {
+      "products": [],
+      "oldprices": [],
+      "newprices": [],
+      "links": [],
+      "stock": []
+   }
+
+   # range = total pages(currently 85)
+   for i in range(1, 2):
+      URL = 'https://jolse.com/category/skincare/1018/' + '?page=' + str(i)
+      data = check_price(URL)
+      skincare_data["products"].extend(data["products"])
+      skincare_data["oldprices"].extend(data["oldprices"])
+      skincare_data["newprices"].extend(data["newprices"])
+      skincare_data["links"].extend(data["links"])
+      skincare_data["stock"].extend(data["stock"])
+
+   return skincare_data
+
 # Route to return scraped data as JSON
 @app.route('/data')
 def get_data():
-   data = check_price()
+   data = yoink_skincare()
    return jsonify(data)
 
 if __name__ == '__main__':
