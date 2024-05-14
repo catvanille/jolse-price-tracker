@@ -23,7 +23,7 @@ def get_data():
       "products": products,
       "oldprices": oldprices,
       "newprices": newprices,
-      # "discount": percentoff,
+      "discount": percentoff,
       "links": links,
       "stock": stock
    }
