@@ -79,7 +79,7 @@ def yoink_skincare():
 
    # range = total pages(currently 85)
    # NOTE: seems to bug out when increasing range
-   for i in range(1, 2):
+   for i in range(1, 52):
       URL = 'https://jolse.com/category/skincare/1018/' + '?page=' + str(i)
       data = check_price(URL)
       skincare_data["products"].extend(data["products"])
