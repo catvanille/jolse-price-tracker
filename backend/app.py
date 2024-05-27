@@ -4,6 +4,11 @@ import requests
 from bs4 import BeautifulSoup
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
+from supabase_client import supabase
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -13,14 +18,6 @@ headers = {
 }
 
 
-# Initialize lists
-links = []
-products = []
-oldprices = []
-newprices = []
-percentoff = []
-stock = []
-
 '''
 scrapper
 '''
@@ -29,6 +26,8 @@ def check_price(URL):
    page = requests.get(URL, headers=headers)
    soup = BeautifulSoup(page.content, 'html.parser')
 
+   data = []
+
    for element in soup.findAll('div', attrs={'class': 'description'}):
       link = element.find('a')['href']
       if 'display/2' in link:
@@ -36,7 +35,7 @@ def check_price(URL):
       else:
          # make sure to add prepend for link
          link = f'https://jolse.com{link}'
-         links.append(link)
+         
       product = element.find('strong', attrs={'class': 'name'}).text.strip()[15:]
       price = element.find('ul', attrs={'class': 'xans-element- xans-product xans-product-listitem spec'}).text.strip()[10:]
       if 'USD ' in price:
@@ -44,72 +43,52 @@ def check_price(URL):
       else:
          old_price = price
          new_price = price
-      products.append(product)
-      oldprices.append(float(old_price))
-      newprices.append(float(new_price))
-      percentoff.append(int(float(old_price) - float(new_price)) / float(old_price) * 100)
-      if 'src="/web/upload/icon_201906191605023500.jpg' in element.find('div', attrs={'class': 'icon'}).text.strip() == True:
-         stock.append(0)
-      else:
-         stock.append(1)
+
+      old_price = float(old_price)
+      new_price = float(new_price)
+      percent_off = (old_price - new_price) / old_price * 100
+      in_stock = 0 if 'src="/web/upload/icon_201906191605023500.jpg' in element.find('div', attrs={'class': 'icon'}).text.strip() else 1
+
+      data.append({
+         "product": product,
+         "old_price": old_price,
+         "new_price": new_price,
+         "link": link,
+         "stock": in_stock,
+         "percent_off": percent_off
+      })
+      
    
-   # Return the scraped data as a dictionary
-   return {
-      "products": products,
-      "oldprices": oldprices,
-      "newprices": newprices,
-      "links": links,
-      "stock": stock
-   } 
+   # Return the scraped data
+   return data
 
 '''
 grab skincare category
 '''
 def yoink_skincare():
-   global links, products, oldprices, newprices, percentoff, stock
-   skincare_data = {
-      "products": [],
-      "oldprices": [],
-      "newprices": [],
-      "links": [],
-      "stock": []
-   }
+   skincare_data = []
 
    # range = total pages(currently 85)
    # NOTE: seems to bug out when increasing range
-   for i in range(1, 52):
+   for i in range(1, 2):
       URL = 'https://jolse.com/category/skincare/1018/' + '?page=' + str(i)
-      data = check_price(URL)
-      skincare_data["products"].extend(data["products"])
-      skincare_data["oldprices"].extend(data["oldprices"])
-      skincare_data["newprices"].extend(data["newprices"])
-      skincare_data["links"].extend(data["links"])
-      skincare_data["stock"].extend(data["stock"])
+      skincare_data.extend(check_price(URL))
 
-   # update global variables
-   links = skincare_data["links"]
-   products = skincare_data["products"]
-   oldprices = skincare_data["oldprices"]
-   newprices = skincare_data["newprices"]
-   stock = skincare_data["stock"]
+   # inset data into supabase
+   supabase.table('skincare_products').upsert(skincare_data).execute()
 
 # Route to return scraped data as JSON
 @app.route('/data')
-def get_data():
-   data = {
-      "products": products,
-      "oldprices": oldprices,
-      "newprices": newprices,
-      "discount": percentoff,
-      "links": links,
-      "stock": stock
-   }
+def get_skincare_data():
+   response = supabase.table('skincare_products').select('*').execute()
+   data = response.data
    return jsonify(data)
 
 if __name__ == '__main__':
    # schedule yoinking once every day
-   scheduler = BackgroundScheduler()
-   scheduler.add_job(yoink_skincare, 'interval', days=1, start_date=datetime.now())
-   scheduler.start()
+   # scheduler = BackgroundScheduler()
+   # scheduler.add_job(yoink_skincare, 'interval', days=1, start_date=datetime.now())
+   # scheduler.start()
+   yoink_skincare()
 
    app.run(debug=True)
