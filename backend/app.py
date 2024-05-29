@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
-from apscheduler.schedulers.background import BackgroundScheduler
+#from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 
 app = Flask(__name__)
@@ -110,8 +110,8 @@ def get_data():
 
 if __name__ == '__main__':
    # schedule yoinking once every day
-   scheduler = BackgroundScheduler()
-   scheduler.add_job(yoink_skincare, 'interval', days=1, start_date=datetime.now())
-   scheduler.start()
+   #scheduler = BackgroundScheduler()
+   #scheduler.add_job(yoink_skincare, 'interval', days=1, start_date=datetime.now())
+   #scheduler.start()
 
    app.run(debug=True)
